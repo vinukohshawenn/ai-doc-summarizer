@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: summary_app
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # This points the app to the 'db' container instead of localhost
+      - DATABASE_URL=postgresql://postgres:password@db:5432/summary_app
+    depends_on:
+      - db
+    volumes:
+      # Syncs your local code to the container so you don't have to rebuild on every edit
+      - .:/app
+
+volumes:
+  # This ensures your user accounts survive even if the database container shuts down
+  postgres_data:
