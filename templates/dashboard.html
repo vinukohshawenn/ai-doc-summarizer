@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workspace | Summarizer AI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; color: #1f2937; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* --- THE NAVBAR --- */
+        .top-nav { background: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .nav-left { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; color: #111827; letter-spacing: -0.5px; }
+        .app-icon { width: 28px; height: 28px; color: #3b82f6; }
+        
+        .nav-right { display: flex; align-items: center; gap: 25px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; color: #4b5563; }
+        .avatar { background-color: #3b82f6; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 16px; text-transform: uppercase; }
+        .logout-btn { color: #6b7280; text-decoration: none; font-weight: 500; padding: 6px 12px; border-radius: 6px; border: 1px solid #e5e7eb; transition: all 0.2s; font-size: 14px; }
+        .logout-btn:hover { background-color: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+        /* --- THE WORKSPACE --- */
+        .main-content { flex: 1; max-width: 800px; margin: 0 auto; width: 100%; padding: 40px 20px 120px 20px; box-sizing: border-box; }
+        
+        /* Upload Container */
+        .upload-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 2px dashed #cbd5e1; margin-top: 40px; }
+        input[type="file"] { margin-bottom: 20px; font-size: 15px; }
+        .action-btn { padding: 12px 24px; background-color: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s; }
+        .action-btn:hover { background-color: #059669; }
+
+        /* --- NATIVE CHAT FEED --- */
+        .chat-feed { display: flex; flex-direction: column; gap: 24px; }
+        .msg { max-width: 85%; padding: 16px 20px; border-radius: 18px; line-height: 1.6; font-size: 16px; white-space: pre-wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .msg-user { background-color: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-ai { background-color: white; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e5e7eb; }
+        
+        /* --- FLOATING INPUT BAR --- */
+        .input-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, #f9fafb 85%, transparent); display: flex; justify-content: center; box-sizing: border-box; }
+        .input-area { width: 100%; max-width: 800px; display: flex; gap: 10px; background: white; padding: 10px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
+        .input-area input { flex-grow: 1; border: none; outline: none; padding: 10px 15px; font-size: 16px; background: transparent; }
+        .send-btn { background-color: #3b82f6; color: white; border: none; padding: 0 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .send-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-left">
+            <svg class="app-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            Summarizer.AI
+        </div>
+        <div class="nav-right">
+            <div class="user-profile">
+                <div class="avatar">{{ username[0] }}</div>
+                <span>{{ username }}</span>
+            </div>
+            <a href="/logout" class="logout-btn">Log out</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        {% if not has_doc %}
+            <div class="upload-card">
+                <h3 style="margin-top: 0; color: #111827;">Document Intelligence</h3>
+                <p style="color: #6b7280; margin-bottom: 25px;">Upload a PDF or TXT file to initialize the workspace.</p>
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".txt, .pdf, application/pdf" required><br>
+                    <button type="submit" class="action-btn">Initialize Document</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="chat-feed">
+                {% for msg in chat_history %}
+                    {% if msg.role == 'user' %}
+                        <div class="msg msg-user">{{ msg.text }}</div>
+                    {% else %}
+                        <div class="msg msg-ai">{{ msg.text }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="input-wrapper">
+                <form action="/ask" method="post" class="input-area">
+                    <input type="text" name="question" placeholder="Ask a question about your document..." required autocomplete="off" autofocus>
+                    <button type="submit" class="send-btn">Send</button>
+                </form>
+            </div>
+
+            <script>
+                window.scrollTo(0, document.body.scrollHeight);
+            </script>
+        {% endif %}
+    </div>
+
+</body>
+</html>
