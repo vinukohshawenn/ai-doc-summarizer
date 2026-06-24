@@ -54,7 +54,9 @@ An AI-powered web application that enables users to upload PDF or text documents
 AI-Document-Summarizer/
 │
 ├── templates/
-├── static/
+        ├── dashboard.html
+        ├── login.html
+        ├── register.html
 ├── main.py
 ├── models.py
 ├── database.py
